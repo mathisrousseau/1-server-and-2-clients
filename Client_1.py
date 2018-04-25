@@ -4,7 +4,7 @@ import time
 import timeit
 
 connection = True
-LOG_INTERVAL = 10
+LOG_INTERVAL = 5
 lastLog = timeit.default_timer()
 #We begin with one message
 nb_msg = 1
@@ -49,18 +49,26 @@ while connection != False:
         elif logDiffTime > LOG_INTERVAL:
             lastLog = startTime
             latency_sent = latency
-            co_client.send((msg_sent+'/'+str(latency_sent)).encode())
+            
+            #Send message with latency
+            co_client.send((msg_sent+'L'+str(latency_sent)+\
+                'T'+str(startTime)).encode())
+
+            #Initialization of the latency list
             latency = []
+            
             ack_server = co_client.recv(1024)
+
+            #Measure of this latency
+            endTime = timeit.default_timer()
+            latency.append(totalTime)
+            
             print("logging")
             #print("lasLog time is now : {}".format(lastLog))
             print("There was/were {} message(s) sent.".format(nb_msg))
-            nb_msg = 0
+            nb_msg = 1
 
-        time.sleep(1)
-    
-        #We send this time to the server
-        #co_client.send(str(totalTime).encode())
+        time.sleep(2)
 
     except KeyboardInterrupt :
         break
