@@ -4,10 +4,8 @@ import time
 import timeit
 
 connection = True
-LOG_INTERVAL = 10
-lastLog = timeit.default_timer()
-#We begin with one message
-nb_msg = 1
+LOG_INTERVAL = 5
+nb_msg = 0
 
 latency = []
 latency_sent = []
@@ -17,6 +15,7 @@ co_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 #Connection with the serveur
 co_client.connect(('localhost', 12800))
+lastLog = timeit.default_timer()
 
 msg_sent = ""
 
@@ -42,25 +41,38 @@ while connection != False:
             #print("The end time is : {}".format(endTime))
     
             #Total time
+            #The first total time is higher than other total time
+            #Because it's linked with the moment when we run the client 2
             totalTime = endTime - startTime
             #print("Total time is : {}".format(totalTime))
             latency.append(totalTime)
     
         elif logDiffTime > LOG_INTERVAL:
             lastLog = startTime
-            latency_sent = latency
-            co_client.send((msg_sent+'/'+str(latency_sent)).encode())
+            nb_msg += 1
+            
+            #Send message with latency
+            co_client.send((msg_sent+'L'+str(latency)+\
+                'T'+str(startTime)+'V'+str(nb_msg)).encode())
+
+            #Initialization of the latency list
             latency = []
+            
             ack_server = co_client.recv(1024)
+
+            #Measure of this latency
+            endTime = timeit.default_timer()
+
+            #Total time
+            totalTime = endTime - startTime
+            latency.append(totalTime)
+            
             print("logging")
             #print("lasLog time is now : {}".format(lastLog))
             print("There was/were {} message(s) sent.".format(nb_msg))
             nb_msg = 0
 
-        time.sleep(1)
-    
-        #We send this time to the server
-        #co_client.send(str(totalTime).encode())
+        time.sleep(0.1)
 
     except KeyboardInterrupt :
         break

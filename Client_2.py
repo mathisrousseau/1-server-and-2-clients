@@ -15,8 +15,8 @@ msg_server = co_client.recv(1024)
 #Envoie de l'accuse de reception
 while msg_server == b"Command":
     
-    print("Message of the server : {}" \
-        .format(msg_server.decode()))
+    #print("Message of the server : {}" \
+     #   .format(msg_server.decode()))
 
     co_client.send(b"OK")
 
